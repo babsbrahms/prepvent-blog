@@ -39,11 +39,13 @@ router.get('/:id', function(req, res, next) {
 
 router.post('/addcomment', [
   check('comment', 'Comment feild is required').notEmpty(),
-  check('name field', 'Comment feild is required').notEmpty()
+  check('name', 'Name feild is required').notEmpty()
 ],(req, res) => {
   const { comment, blog, email, name, website } = req.body;
   console.log({ comment, blog, email, name, website });
 
+  const errors = validationResult(req);
+  
   if (!errors.isEmpty()) {
     req.flash('errors', errors.array() )
 

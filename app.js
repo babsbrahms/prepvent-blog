@@ -6,6 +6,7 @@ var logger = require('morgan');
 var mongoose = require('mongoose');
 var flash = require('connect-flash');
 var session = require('express-session');
+require('dotenv').config()
 
 var indexRouter = require('./routes/index');
 var contactRouter = require('./routes/contact');
@@ -22,7 +23,16 @@ app.set('view engine', 'ejs');
 
 // mongodb
 // mongoose
-mongoose.connect('mongodb://localhost:27017/prepventblog', {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+var mongoURI= "";
+var env = process.env.NODE_ENV || 'development';
+if (env === 'development') {
+  // dev mongo string
+  mongoURI = process.env.DB_DEV;
+} else {
+  // production
+  mongoURI = process.env.DB_PROD;
+}
+mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 let mdb = mongoose.connection;
 
 mdb.once('open', () => {
@@ -44,13 +54,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
   // app.use(express.cookieParser('keyboard cat'));
   app.use(session({   
-    secret: 'keyboard cat',
+    key: 'user_sid',
+    secret: 'somerandonstuffs',
     resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 }
+    saveUninitialized: false,
+    cookie: {
+        expires: 600000
+    }
   }));
+
   app.use(flash());
 
+  // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
+  // This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
+  app.use((req, res, next) => {
+      if (req.cookies.user_sid && !req.session.user) {
+          res.clearCookie('user_sid');        
+      }
+      next();
+  });
 
 app.use('/', indexRouter);
 app.use('/contact', contactRouter);

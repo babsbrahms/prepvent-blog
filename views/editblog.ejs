@@ -38,7 +38,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <form id="createPost" action="/cms/edit-post/<%=blog._id%>" method="post" enctype="multipart/form-data">
+                <form id="createPost" action="/cms/edit-post" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="id"  value="<%=blog._id%>">
                     <div class="form-group">
                         <label>Title</label>
                         <input required type="text" name="title" class="form-control" placeholder="blog title" value="<%=blog.title %>">
