@@ -5,7 +5,8 @@ var Schema = mongoose.Schema;
 
 var user = new Schema({
     email: { type: String, required: true, unique: true },
-    password: { type: String, min: 5 }
+    password: { type: String, min: 5, required: true },
+    name: { type: String, required: true }
 })
 
 user.methods.hashPassword = (password) => {
