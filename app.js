@@ -98,7 +98,7 @@ app.use(function(err, req, res, next) {
   res.render('error', { page: 'Error', msg: req.flash('msg'), errors: req.flash('errors') });
 });
 
-let port = 5000;
+let port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log('live on port: ', port);
   

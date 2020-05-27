@@ -155,6 +155,19 @@
                 </div>	
             </div>
         </div>
+        <div class="page_pageniation">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <%if(current_number === 0){%>disabled<%}%>">
+                    <a class="page-link" href="/cms?nav=previous" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+
+                    <li class="page-item <%if(blogs.length < limit){%>disabled<%}%>">
+                    <a class="page-link" href="/cms?nav=next">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </section>
 
   <!-- ================ modal ================= -->

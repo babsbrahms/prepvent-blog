@@ -83,14 +83,32 @@ router.use(loggedIn)
 
 
 router.get('/', function(req, res, next) {
+    const {nav} = req.query;
+
+    let current = req.session.cms_number || 0;
+    if (nav === 'previous' && (current !== 0) ) {
+      current = cms - 1;
+    } else if (nav === 'next') {
+      current = current + 1;
+    } 
+  
+    req.session.cms_number = current;
+    let limit = 10;
+    let skip = limit*current;
+
     var user = req.session.user;
-    Blog.find({ user: user._id }).sort({ createdAt: -1 }).exec(function (err, blogs) {
+    Blog.find({ user: user._id }).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(function (err, blogs) {
         if (err) {
             res.locals.error = req.app.get('env') === 'development' ? err : {};
     
             res.render('error', { page: 'CMS' });
+        } else if ((blogs.length === 0) && (current !== 0)) {
+            let count = (current > 0)? current - 1 : 0
+            req.session.cms_number = count;
+            res.redirect(`/cms`)
+        } else {
+            res.render('cms', { page: 'CMS', blogs, msg: req.flash('msg'), errors: req.flash('errors'), author: req.session.user.name, current_number: current, limit  })
         }
-        res.render('cms', { page: 'CMS', blogs, msg: req.flash('msg'), errors: req.flash('errors'), author: req.session.user.name })
     })
 });
 

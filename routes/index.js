@@ -10,14 +10,30 @@ var User = require('../model/user')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  Blog.find({}).sort({ createdAt: -1 }).exec(function (err, blogs) {
+  const {nav} = req.query;
+  let current = req.session.home_number || 0;
+  if (nav === 'previous' && (current !== 0) ) {
+    current = current - 1;
+  } else if (nav === 'next') {
+    current = current + 1;
+  } 
+
+  req.session.home_number = current;
+  let limit = 10;
+  let skip = limit*current;
+  Blog.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(function (err, blogs) {
     Blog.distinct('category').exec((errs, categories) => {
       if (err || errs) {
         res.locals.error = req.app.get('env') === 'development' ? err||errs : {};
 
         res.render('error', { page: 'Blog', message: err.message|| errs.message });
+      } else if ((blogs.length === 0) && (current !== 0)) {
+        let count = (current > 0)? current - 1 : 0
+        req.session.home_number = count;
+        res.redirect('/')
+      } else {
+        res.render('index', { page: 'Home', blogs, categories, msg: req.flash('msg'), errors: req.flash('errors'), current_number: current, limit });
       }
-      res.render('index', { page: 'Home', blogs, categories, msg: req.flash('msg'), errors: req.flash('errors') });
     })
   })
 
