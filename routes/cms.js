@@ -44,22 +44,18 @@ conn.once('open',  ()=> {
 const storage = new GridFsStorage({
     //   url: mongoURI,
     db: promise,
-
-  file: (req, file) => new Promise((resolve, reject) => {
-
-            // bucketName === collectionName === 'uploades'
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    reject(err);
-                }
-                const filename = buf.toString('hex') + path.extname(file.originalname);
-                const fileInfo = {
-                filename,
-                bucketName: 'uploads'
-                };
-                resolve(fileInfo);
-            });
-      
+    file: (req, file) => new Promise((resolve, reject) => {
+        crypto.randomBytes(16, (err, buf) => {
+            if (err) {
+                reject(err);
+            }
+            const filename = buf.toString('hex') + path.extname(file.originalname);
+            const fileInfo = {
+            filename,
+            bucketName: 'uploads'
+            };
+            resolve(fileInfo);
+        });
     })
   
 });
@@ -133,8 +129,8 @@ router.post('/create-posts', upload.single('poster'), [
 
 router.get('/edit-post/:id', (req, res) => {
     const {id } = req.params;
-
-    Blog.findOne({ _id: id}, (err, blog) => {
+    var user = req.session.user;
+    Blog.findOne({ _id: id, user: user._id}, (err, blog) => {
         if (err) {
             res.locals.error = req.app.get('env') === 'development' ? err : {};
     
@@ -163,8 +159,8 @@ router.post('/edit-post', upload.single('poster'), [
 
       return res.redirect(`/edit-post/${id}`)
     }
-    
-    Blog.updateOne({ _id: id}, { $set: { 
+    var user = req.session.user;
+    Blog.updateOne({ _id: id, user: user._id }, { $set: { 
         title, category, body, poster: (req.file && req.file.filename)? `/cms/images/${req.file.filename}` : oldPoster
     }}).exec((err, blog) => {
         if (err) {
@@ -184,8 +180,8 @@ router.post('/edit-post', upload.single('poster'), [
 router.delete('/delete-post/:id', (req, res) => {
     const {id} = req.params;
     console.log('delete id: ', id);
-    
-    Blog.deleteOne({ _id: id }).exec((err, done) => {
+    var user = req.session.user;
+    Blog.deleteOne({ _id: id, user: user._id }).exec((err, done) => {
         if (err) {
             res.status(401).send(err.message)
         } else {
