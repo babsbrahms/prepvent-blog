@@ -79,7 +79,7 @@ router.post('/signup',
   check('email', 'Email field is required').notEmpty(),
   check('password', 'Password field is requird').notEmpty()], 
   (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -94,6 +94,7 @@ router.post('/signup',
   var hash = bcrypt.hashSync(password, salt);
   user.email = email;
   user.password = hash;
+  user.name = name;
   user.save()
   .then(user => {
       console.log('USER:', user);

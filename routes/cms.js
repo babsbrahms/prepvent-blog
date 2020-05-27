@@ -62,7 +62,6 @@ const storage = new GridFsStorage({
       
     })
   
-
 });
 
 var upload = multer({ storage })
@@ -88,19 +87,20 @@ router.use(loggedIn)
 
 
 router.get('/', function(req, res, next) {
-    Blog.find({}).sort({ createdAt: -1 }).exec(function (err, blogs) {
+    var user = req.session.user;
+    Blog.find({ user: user._id }).sort({ createdAt: -1 }).exec(function (err, blogs) {
         if (err) {
             res.locals.error = req.app.get('env') === 'development' ? err : {};
     
             res.render('error', { page: 'CMS' });
         }
-        res.render('cms', { page: 'CMS', blogs, msg: req.flash('msg'), errors: req.flash('errors') })
+        res.render('cms', { page: 'CMS', blogs, msg: req.flash('msg'), errors: req.flash('errors'), author: req.session.user.name })
     })
 });
 
 router.post('/create-posts', upload.single('poster'), [
     check('title', 'Title field is required').notEmpty(),
-    check('author', 'Author field is required').notEmpty(),
+    // check('author', 'Author field is required').notEmpty(),
     check('category', 'Category field is required').notEmpty(),
     check('body', 'Body field is required').notEmpty()
 ], function(req, res, next) {
@@ -113,9 +113,9 @@ router.post('/create-posts', upload.single('poster'), [
 
       return res.redirect('/cms')
     }
-    
+    var user = req.session.user;
     Blog.create({
-        title, author, category, body, poster: `/cms/images/${req.file.filename}`
+        title, author: user.name, category, body, poster: `/cms/images/${req.file.filename}`, user: user._id
     }).then((doc) => {
         console.log(doc);
         req.flash('msg', 'Blog created')
@@ -148,7 +148,7 @@ router.get('/edit-post/:id', (req, res) => {
 
 router.post('/edit-post', upload.single('poster'), [
     check('title', 'Title field is required').notEmpty(),
-    check('author', 'Author field is required').notEmpty(),
+    // check('author', 'Author field is required').notEmpty(),
     check('category', 'Category field is required').notEmpty(),
     check('body', 'Body field is required').notEmpty(),
     check('id', 'Id field is required').notEmpty()
@@ -165,7 +165,7 @@ router.post('/edit-post', upload.single('poster'), [
     }
     
     Blog.updateOne({ _id: id}, { $set: { 
-        title, author, category, body, poster: (req.file && req.file.filename)? `/cms/images/${req.file.filename}` : oldPoster
+        title, category, body, poster: (req.file && req.file.filename)? `/cms/images/${req.file.filename}` : oldPoster
     }}).exec((err, blog) => {
         if (err) {
             res.locals.error = req.app.get('env') === 'development' ? err : {};

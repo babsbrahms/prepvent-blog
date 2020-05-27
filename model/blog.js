@@ -9,7 +9,8 @@ var blog = new Schema({
     category: { type: String, index: true },
     date: {  type: Date },
     body: { type: String },
-    tags: { type: Array }
+    tags: { type: Array },
+    user: { type: Schema.Types.ObjectId, ref: 'Users'}
 }, { timestamps: true })
 blog.index({ title: 'text', tags: 'text'})
 
