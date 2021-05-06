@@ -5,7 +5,7 @@ App that allows everybody to create a blog post
 [Web Link](https://prepvent-blog.herokuapp.com)
 
 ## Technology Used
-- Node
+- Node Js
 - MongoDb
 - Express Js 
 
