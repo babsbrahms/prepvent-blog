@@ -1,4 +1,18 @@
 # prepvent-blog
-Create an account and post your article. The was created with nodejs, express and mongodb.
-# Run app using
-npm start
+
+App that allows everybody to create a blog post
+
+[Web Link](https://prepvent-blog.herokuapp.com)
+
+## Technology Used
+- Node
+- MongoDb
+- Express Js 
+
+## To Create A Blog Post
+1 Create an account (If you don't have one)
+2 post your article.
+
+
+### To Run On You Local Machine
+> npm start
